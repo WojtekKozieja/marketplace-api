@@ -1,0 +1,105 @@
+-- migrate:up
+
+TRUNCATE TABLE public.offers RESTART IDENTITY CASCADE;
+
+INSERT INTO public.offers (seller_id, subcategory_id, unit_price, quantity, title, description, photo, end_offer_date) VALUES
+(3, 1, 299.99, 8, 'Samsung Galaxy S21', 'Used Samsung in excellent condition', 'photos/samsung.jpg', CURRENT_TIMESTAMP + INTERVAL '25 days'),
+(5, 1, 449.99, 6, 'iPhone 13 Pro', 'Like new iPhone 13 Pro', 'photos/iphone13.jpg', CURRENT_TIMESTAMP + INTERVAL '35 days'),
+(4, 2, 1499.99, 5, 'MacBook Air M1', 'Lightweight laptop for students', 'photos/macbook.jpg', CURRENT_TIMESTAMP + INTERVAL '40 days'),
+(7, 3, 599.99, 8, 'LG OLED 55"', 'Premium OLED television', 'photos/lgoled.jpg', CURRENT_TIMESTAMP + INTERVAL '45 days'),
+(8, 3, 189.99, 12, 'Soundbar System', 'Dolby Atmos soundbar', 'photos/soundbar.jpg', CURRENT_TIMESTAMP + INTERVAL '20 days'),
+(9, 4, 299.99, 10, 'Xbox Series X', 'Next-gen gaming console', 'photos/xbox.jpg', CURRENT_TIMESTAMP + INTERVAL '30 days'),
+(11, 5, 79.99, 15, 'Wireless Earbuds', 'Bluetooth earbuds with case', 'photos/earbuds.jpg', CURRENT_TIMESTAMP + INTERVAL '25 days'),
+(12, 5, 149.99, 10, 'Smart Watch', 'Fitness tracking smartwatch', 'photos/smartwatch.jpg', CURRENT_TIMESTAMP + INTERVAL '35 days'),
+(20, 5, 29.99, 30, 'Phone Stand', 'Adjustable phone holder', 'photos/phonestand.jpg', CURRENT_TIMESTAMP + INTERVAL '18 days'),
+(13, 6, 39.99, 25, 'HDMI Cables Pack', 'Premium HDMI cables set', 'photos/hdmi.jpg', CURRENT_TIMESTAMP + INTERVAL '20 days'),
+(14, 6, 89.99, 18, 'Webcam HD', '1080p webcam for streaming', 'photos/webcam.jpg', CURRENT_TIMESTAMP + INTERVAL '30 days'),
+
+(11, 7, 28000.00, 2, 'Honda Civic 2019', 'Economical sedan low miles', 'photos/civic.jpg', CURRENT_TIMESTAMP + INTERVAL '50 days'),
+(13, 8, 12000.00, 2, 'Yamaha MT-07', 'Sport motorcycle', 'photos/yamaha.jpg', CURRENT_TIMESTAMP + INTERVAL '40 days'),
+(14, 8, 6500.00, 3, 'Kawasaki Ninja', 'Fast sport bike', 'photos/ninja.jpg', CURRENT_TIMESTAMP + INTERVAL '35 days'),
+(15, 9, 55000.00, 4, 'Ford Transit', 'Cargo van for business', 'photos/transit.jpg', CURRENT_TIMESTAMP + INTERVAL '60 days'),
+(17, 10, 89.99, 15, 'Car Mirrors', 'Side mirrors universal fit', 'photos/mirrors.jpg', CURRENT_TIMESTAMP + INTERVAL '25 days'),
+(18, 10, 199.99, 8, 'LED Headlights', 'Upgrade headlight kit', 'photos/headlights.jpg', CURRENT_TIMESTAMP + INTERVAL '30 days'),
+(19, 11, 1200.00, 3, 'Bicycle Rack', 'Car bicycle carrier', 'photos/bikerack.jpg', CURRENT_TIMESTAMP + INTERVAL '35 days'),
+
+(16, 12, 1800.00, 3, 'Modern Studio', 'Studio with balcony downtown', 'photos/modernstudio.jpg', CURRENT_TIMESTAMP + INTERVAL '60 days'),
+(17, 12, 2200.00, 4, 'Luxury Studio', 'High-end studio apartment', 'photos/luxurystudio.jpg', CURRENT_TIMESTAMP + INTERVAL '75 days'),
+(18, 13, 4500.00, 2, 'Townhouse', '3 bedroom townhouse', 'photos/townhouse.jpg', CURRENT_TIMESTAMP + INTERVAL '100 days'),
+(20, 14, 650.00, 4, 'Student Room', 'Room near campus utilities included', 'photos/studentroom.jpg', CURRENT_TIMESTAMP + INTERVAL '40 days'),
+(1, 14, 950.00, 3, 'Private Room', 'Large room with private bathroom', 'photos/privateroom.jpg', CURRENT_TIMESTAMP + INTERVAL '50 days'),
+(2, 15, 25000.00, 2, 'Commercial Land', '1000m2 commercial plot', 'photos/commercialland.jpg', CURRENT_TIMESTAMP + INTERVAL '200 days'),
+(4, 16, 4500.00, 3, 'Retail Space', 'Shop space in mall', 'photos/retailspace.jpg', CURRENT_TIMESTAMP + INTERVAL '90 days'),
+(5, 16, 6000.00, 2, 'Restaurant Space', 'Commercial kitchen included', 'photos/restaurant.jpg', CURRENT_TIMESTAMP + INTERVAL '100 days'),
+(6, 17, 3500.00, 2, 'Warehouse Space', 'Storage warehouse 200m2', 'photos/warehouse.jpg', CURRENT_TIMESTAMP + INTERVAL '80 days'),
+
+(7, 18, 599.99, 4, 'Dining Table Set', 'Table with 6 chairs', 'photos/diningtable.jpg', CURRENT_TIMESTAMP + INTERVAL '35 days'),
+(8, 18, 1299.99, 2, 'King Size Bed', 'Wooden bed with mattress', 'photos/bed.jpg', CURRENT_TIMESTAMP + INTERVAL '40 days'),
+(9, 19, 299.99, 6, 'Microwave Oven', 'Digital microwave 900W', 'photos/microwave.jpg', CURRENT_TIMESTAMP + INTERVAL '25 days'),
+(11, 20, 29.99, 15, 'Garden Tools Set', 'Complete gardening kit', 'photos/gardentools.jpg', CURRENT_TIMESTAMP + INTERVAL '30 days'),
+(12, 20, 159.99, 8, 'Lawn Mower', 'Electric lawn mower', 'photos/lawnmower.jpg', CURRENT_TIMESTAMP + INTERVAL '35 days'),
+(13, 21, 59.99, 12, 'Table Lamp', 'Modern LED table lamp', 'photos/tablelamp.jpg', CURRENT_TIMESTAMP + INTERVAL '20 days'),
+(15, 22, 199.99, 8, 'Tool Box Set', 'Professional tool collection', 'photos/toolbox.jpg', CURRENT_TIMESTAMP + INTERVAL '30 days'),
+(17, 22, 149.99, 10, 'Angle Grinder', 'Heavy duty angle grinder', 'photos/grinder.jpg', CURRENT_TIMESTAMP + INTERVAL '28 days'),
+(16, 23, 79.99, 10, 'Storage Boxes', 'Plastic storage containers', 'photos/storage.jpg', CURRENT_TIMESTAMP + INTERVAL '20 days'),
+
+(17, 24, 29.99, 40, 'Polo Shirt', 'Classic polo various colors', 'photos/polo.jpg', CURRENT_TIMESTAMP + INTERVAL '15 days'),
+(18, 24, 39.99, 35, 'Hoodie', 'Warm pullover hoodie', 'photos/hoodie.jpg', CURRENT_TIMESTAMP + INTERVAL '20 days'),
+(19, 25, 79.99, 18, 'Summer Dress', 'Floral print dress', 'photos/dress.jpg', CURRENT_TIMESTAMP + INTERVAL '18 days'),
+(1, 26, 129.99, 12, 'Boots', 'Leather ankle boots', 'photos/boots.jpg', CURRENT_TIMESTAMP + INTERVAL '25 days'),
+(2, 26, 69.99, 20, 'Sneakers', 'Casual sneakers comfortable', 'photos/sneakers.jpg', CURRENT_TIMESTAMP + INTERVAL '18 days'),
+(3, 27, 49.99, 25, 'Handbag', 'Designer style handbag', 'photos/handbag.jpg', CURRENT_TIMESTAMP + INTERVAL '20 days'),
+(4, 27, 19.99, 35, 'Sunglasses', 'UV protection sunglasses', 'photos/sunglasses.jpg', CURRENT_TIMESTAMP + INTERVAL '15 days'),
+(6, 27, 35.99, 20, 'Backpack', 'Daily use backpack', 'photos/backpack.jpg', CURRENT_TIMESTAMP + INTERVAL '22 days'),
+(5, 28, 299.99, 8, 'Automatic Watch', 'Mens mechanical watch', 'photos/mechanicalwatch.jpg', CURRENT_TIMESTAMP + INTERVAL '40 days'),
+(7, 29, 24.99, 30, 'Scarf', 'Winter scarf wool blend', 'photos/scarf.jpg', CURRENT_TIMESTAMP + INTERVAL '18 days'),
+
+(8, 30, 399.99, 6, 'Exercise Bike', 'Stationary bike with monitor', 'photos/exercisebike.jpg', CURRENT_TIMESTAMP + INTERVAL '25 days'),
+(9, 30, 299.99, 8, 'Dumbbells Set', 'Adjustable weight dumbbells', 'photos/dumbbells.jpg', CURRENT_TIMESTAMP + INTERVAL '30 days'),
+(10, 31, 899.99, 3, 'Road Bike', 'Carbon frame road bike', 'photos/roadbike.jpg', CURRENT_TIMESTAMP + INTERVAL '35 days'),
+(12, 32, 79.99, 10, 'Camping Tent', '4 person camping tent', 'photos/tent.jpg', CURRENT_TIMESTAMP + INTERVAL '25 days'),
+(13, 32, 149.99, 8, 'Sleeping Bag', 'Winter sleeping bag -10C', 'photos/sleepingbag.jpg', CURRENT_TIMESTAMP + INTERVAL '30 days'),
+(14, 33, 599.99, 4, 'Keyboard Piano', 'Digital keyboard 88 keys', 'photos/keyboard.jpg', CURRENT_TIMESTAMP + INTERVAL '50 days'),
+(16, 34, 149.99, 5, 'Board Games Set', 'Classic board games collection', 'photos/boardgames.jpg', CURRENT_TIMESTAMP + INTERVAL '25 days'),
+(17, 34, 299.99, 3, 'Trading Cards', 'Rare collectible card set', 'photos/tradingcards.jpg', CURRENT_TIMESTAMP + INTERVAL '40 days'),
+(18, 35, 39.99, 12, 'Basketball', 'Official size basketball', 'photos/basketball.jpg', CURRENT_TIMESTAMP + INTERVAL '20 days'),
+
+(20, 36, 59.99, 8, 'Night Cream', 'Anti-wrinkle night treatment', 'photos/nightcream.jpg', CURRENT_TIMESTAMP + INTERVAL '25 days'),
+(1, 36, 39.99, 12, 'Facial Cleanser', 'Gentle face wash', 'photos/cleanser.jpg', CURRENT_TIMESTAMP + INTERVAL '20 days'),
+(2, 37, 49.99, 10, 'Lipstick Set', 'Long-lasting lipstick 5 colors', 'photos/lipstick.jpg', CURRENT_TIMESTAMP + INTERVAL '22 days'),
+(4, 38, 129.99, 4, 'Cologne Set', 'Mens cologne collection', 'photos/cologne.jpg', CURRENT_TIMESTAMP + INTERVAL '35 days'),
+(5, 38, 79.99, 6, 'Body Spray', 'Long-lasting body spray', 'photos/bodyspray.jpg', CURRENT_TIMESTAMP + INTERVAL '20 days'),
+(6, 39, 49.99, 10, 'Hair Straightener', 'Ceramic hair straightener', 'photos/straightener.jpg', CURRENT_TIMESTAMP + INTERVAL '28 days'),
+(8, 40, 45.00, 12, 'Protein Powder', 'Whey protein supplement', 'photos/protein.jpg', CURRENT_TIMESTAMP + INTERVAL '40 days'),
+(9, 40, 25.00, 18, 'Omega-3 Fish Oil', 'Heart health supplement', 'photos/omega3.jpg', CURRENT_TIMESTAMP + INTERVAL '50 days'),
+(10, 41, 35.00, 10, 'Essential Oils Set', 'Aromatherapy oil collection', 'photos/oils.jpg', CURRENT_TIMESTAMP + INTERVAL '30 days'),
+
+(11, 42, 29.99, 8, 'Harry Potter Set', 'Complete HP book series', 'photos/harrypotter.jpg', CURRENT_TIMESTAMP + INTERVAL '35 days'),
+(12, 42, 19.99, 12, 'Mystery Novel', 'Bestselling thriller book', 'photos/mystery.jpg', CURRENT_TIMESTAMP + INTERVAL '25 days'),
+(13, 43, 35.00, 6, 'Marvel Box Set', 'MCU movies Blu-ray collection', 'photos/marvel.jpg', CURRENT_TIMESTAMP + INTERVAL '40 days'),
+(15, 44, 49.99, 5, 'Beatles Vinyl', 'Abbey Road original pressing', 'photos/beatles.jpg', CURRENT_TIMESTAMP + INTERVAL '45 days'),
+(16, 44, 29.99, 8, 'Jazz Collection', 'Classic jazz vinyl records', 'photos/jazz.jpg', CURRENT_TIMESTAMP + INTERVAL '35 days'),
+(17, 45, 49.99, 6, 'FIFA 24', 'Latest FIFA game for PS5', 'photos/fifa.jpg', CURRENT_TIMESTAMP + INTERVAL '20 days'),
+(19, 46, 25.00, 8, 'Art Book', 'Photography art collection', 'photos/artbook.jpg', CURRENT_TIMESTAMP + INTERVAL '28 days'),
+(20, 46, 12.99, 15, 'Comics Collection', 'Superhero comics bundle', 'photos/comics.jpg', CURRENT_TIMESTAMP + INTERVAL '20 days'),
+
+(1, 48, 39.99, 18, 'Kids Shoes', 'Comfortable sneakers size 30-35', 'photos/kidsshoes.jpg', CURRENT_TIMESTAMP + INTERVAL '25 days'),
+(2, 48, 29.99, 20, 'Kids T-shirts', 'Cotton tshirts pack of 3', 'photos/kidstshirts.jpg', CURRENT_TIMESTAMP + INTERVAL '20 days'),
+(3, 49, 299.99, 4, 'Travel Stroller', 'Compact folding stroller', 'photos/travelstroller.jpg', CURRENT_TIMESTAMP + INTERVAL '30 days'),
+(5, 50, 199.99, 3, 'Bunk Bed', 'Kids bunk bed with ladder', 'photos/bunkbed.jpg', CURRENT_TIMESTAMP + INTERVAL '40 days'),
+(6, 50, 89.99, 6, 'Toy Chest', 'Storage box for toys', 'photos/toychest.jpg', CURRENT_TIMESTAMP + INTERVAL '25 days'),
+(7, 51, 19.99, 35, 'Sticker Book', 'Kids sticker activity book', 'photos/stickerbook.jpg', CURRENT_TIMESTAMP + INTERVAL '18 days'),
+
+(9, 52, 800.00, 1, 'Labrador Puppy', 'Purebred Labrador vaccinated', 'photos/labrador.jpg', CURRENT_TIMESTAMP + INTERVAL '25 days'),
+(10, 52, 600.00, 2, 'Beagle Puppy', 'Healthy beagle puppies', 'photos/beagle.jpg', CURRENT_TIMESTAMP + INTERVAL '28 days'),
+(11, 53, 250.00, 2, 'Persian Cat', 'Beautiful Persian kitten', 'photos/persian.jpg', CURRENT_TIMESTAMP + INTERVAL '22 days'),
+(13, 54, 15.00, 20, 'Goldfish', 'Fancy goldfish various colors', 'photos/goldfish.jpg', CURRENT_TIMESTAMP + INTERVAL '18 days'),
+(14, 54, 89.99, 6, 'Aquarium Kit', 'Complete fish tank setup', 'photos/aquarium.jpg', CURRENT_TIMESTAMP + INTERVAL '30 days'),
+(15, 55, 29.99, 12, 'Pet Bed', 'Comfortable dog bed medium', 'photos/petbed.jpg', CURRENT_TIMESTAMP + INTERVAL '25 days'),
+(17, 56, 24.99, 15, 'Dog Treats', 'Healthy training treats', 'photos/dogtreats.jpg', CURRENT_TIMESTAMP + INTERVAL '20 days'),
+(18, 56, 12.99, 25, 'Catnip Toys', 'Interactive cat toys set', 'photos/catniptoys.jpg', CURRENT_TIMESTAMP + INTERVAL '18 days');
+
+
+-- migrate:down
+
+TRUNCATE TABLE public.offers RESTART IDENTITY CASCADE;
