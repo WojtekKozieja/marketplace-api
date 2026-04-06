@@ -35,6 +35,5 @@ databases:
   # PostgreSQL Database
   - name: marketplace-db
     databaseName: marketplace
-    user: postgres
     region: frankfurt
     plan: free
