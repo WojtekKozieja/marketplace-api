@@ -1,4 +1,3 @@
-from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy import func
 from database import SessionLocal
 from models import Offer
@@ -6,11 +5,14 @@ from models import Offer
 
 def deactivate_offers():
     db = SessionLocal()
-    db.query(Offer).filter(
-        Offer.is_active == True,
-        Offer.end_offer_date < func.now()
-    ).update({"is_active": False})
-    db.commit()
+    try:
+        db.query(Offer).filter(
+            Offer.is_active == True,
+            Offer.end_offer_date < func.now()
+        ).update({"is_active": False})
+        db.commit()
+    finally:
+        db.close()
 
 
 if __name__ == "__main__":
