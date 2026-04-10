@@ -4,34 +4,38 @@ from sqlalchemy.orm import Session
 from models import Offer, Subcategory
 from sqlalchemy import func
 from datetime import timedelta
-from enum import Enum
-from typing import Optional
-from pydantic import BaseModel
+from schemas.offer import AddOffer, OfferResponse, OfferUpdate, ExtendOffer
 
 router = APIRouter(prefix="/offer", tags=["Offers"])
 
 
-@router.get("/all_offers")
+@router.get("/all_offers", response_model=list[OfferResponse])
 def get_offers(db: Session = Depends(get_db)):
     offers = db.query(Offer).all()
     return offers
 
 
-@router.get("/search_offer_by_id")
+@router.get("/{offer_id}/search_offer_by_id", response_model=OfferResponse)
 def get_offers_by_id(offer_id: int, db: Session = Depends(get_db)):
     return db.query(Offer).filter(Offer.offer_id == offer_id).first()
 
 
-@router.get("/search_active_offers", tags=(["Offers"]), description="""
-    You must choose category_id or subcategory_id.\n
-    If you choose both, it will find offers matching to subcategory even if category_id dont match to subcategory_id.\n
-    Check section "Category and Subcategory" to find matching category_id to subcategory_id.
-""")
+@router.get(
+        "/search_active_offers", 
+        tags=(["Offers"]), 
+        description=
+        """
+            You must choose category_id or subcategory_id.\n
+            If you choose both, it will find offers matching to subcategory even if category_id dont match to subcategory_id.\n
+            Check section "Category and Subcategory" to find matching category_id to subcategory_id.
+        """,
+        response_model=list[OfferResponse]
+)
 def get_search_active_offers(
-    category_id: int = None,
-    subcategory_id: int = None,
-    min_price: float = None,
-    max_price: float = None,
+    category_id: int    | None = None,
+    subcategory_id: int | None = None,
+    min_price: float    | None = None,
+    max_price: float    | None = None,
     db: Session = Depends(get_db)):
 
     if not subcategory_id and not category_id:
@@ -55,33 +59,20 @@ def get_search_active_offers(
     return result.all()
 
 
-class OfferDuration(int, Enum):
-    thirty_days = 30
-    ninety_days = 90
-    one_hundred_eightly_days = 180
-    three_hundred_sixty_days = 360
-
-@router.post("/add_offer")
+@router.post("/add_offer", response_model=OfferResponse)
 def create_offer(
-    seller_id: int,
-    subcategory_id: int,
-    unit_price: float,
-    quantity: int,
-    title: str,
-    description: str,
-    photo: str,
-    offer_duration: OfferDuration = None,
+    new_offer: AddOffer,
     db: Session = Depends(get_db)):
 
     new_offer = Offer(
-        seller_id = seller_id,
-        unit_price = unit_price,
-        quantity = quantity,
-        title = title,
-        description = description,
-        photo = photo,
-        subcategory_id = subcategory_id,
-        end_offer_date = func.now() + timedelta(days=offer_duration)
+        seller_id = new_offer.seller_id,
+        unit_price = new_offer.unit_price,
+        quantity = new_offer.quantity,
+        title = new_offer.title,
+        description = new_offer.description,
+        photo = new_offer.photo,
+        subcategory_id = new_offer.subcategory_id,
+        end_offer_date = func.now() + timedelta(days=new_offer.offer_duration)
     )
 
     db.add(new_offer)
@@ -90,21 +81,15 @@ def create_offer(
     return new_offer
 
 
-class OfferUpdate(BaseModel):
-    unit_price:     Optional[float] = None
-    quantity:       Optional[int] = None
-    title:          Optional[str] = None
-    description:    Optional[str] = None
-    photo:          Optional[str] = None
 
 
-@router.put('/change_offer')
+@router.patch('/{offer_id}/change_offer')
 def change_offer(
-    changing_offer_id: int,
+    offer_id: int,
     data: OfferUpdate,
     db: Session = Depends(get_db)):
 
-    offer = db.query(Offer).filter(Offer.offer_id == changing_offer_id).first()
+    offer = db.query(Offer).filter(Offer.offer_id == offer_id).first()
 
     for field, value in data.model_dump(exclude_none=True).items():
         setattr(offer, field, value)
@@ -114,8 +99,12 @@ def change_offer(
     return offer
 
 
-@router.put("/extend_offer")
-def update_end_offer_day(offer_id: int, extra_days: OfferDuration, db: Session = Depends(get_db)):
+@router.patch("/{offer_id}/extend_offer", response_model=OfferResponse)
+def update_end_offer_day(
+    offer_id: int,
+    extra_days: ExtendOffer,
+    db: Session = Depends(get_db)
+):
     offer = db.query(Offer).filter(
         Offer.offer_id == offer_id,
         Offer.is_active == True,
@@ -125,7 +114,7 @@ def update_end_offer_day(offer_id: int, extra_days: OfferDuration, db: Session =
     if not offer:
         raise HTTPException(status_code=404, detail="Wrong offer_id. You can extend only active offers.")
     
-    offer.end_offer_date = offer.end_offer_date + timedelta(days=extra_days)
+    offer.end_offer_date = offer.end_offer_date + timedelta(days=extra_days.extra_days)
     db.commit()
     db.refresh(offer)
     return offer
