@@ -4,34 +4,32 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from models import User, Offer, favourites
 from sqlalchemy import func, insert
-from pydantic import EmailStr
 import bcrypt
 from psycopg2 import errors
+from schemas.user import UserCreate, UserResponse, LogInUser, FavouriteOffer
+from schemas.offer import OfferResponse
 
 router = APIRouter(prefix="/user", tags=["Users"])
 
 
-@router.get("/users")
+@router.get("/users", response_model=list[UserResponse])
 def get_users(db: Session = Depends(get_db)):
     users = db.query(User).all()
     return users
 
 
-@router.get("/users_activate_offers")
+@router.get("/users_active_offers/{user_id}", response_model=OfferResponse)
 def get_users_offers(user_id: int, db: Session = Depends(get_db)):
-    users_offers = db.query(User, Offer).join(Offer).filter(
+    user_offers = db.query(Offer).join(Offer).filter(
         User.user_id == user_id,
         Offer.is_active == True,
         Offer.end_offer_date > func.now()
     ).all()
 
-    return [
-        {**user.__dict__, **offer.__dict__}
-        for user, offer in users_offers
-    ]
+    return user_offers
 
 
-@router.get("/favorite_offers")
+@router.get("/favorite_offers/{user_id}", response_model=OfferResponse)
 def get_favorite_offers(user_id: int, db: Session = Depends(get_db)):
     offers = db.query(Offer).join(
         favourites, Offer.offer_id == favourites.c.offer_id 
@@ -44,78 +42,80 @@ def get_favorite_offers(user_id: int, db: Session = Depends(get_db)):
     return offers
 
 
-@router.post("/Create_user")
+@router.post("/create_user", response_model=UserResponse)
 def create_user(
-    first_name: str,
-    second_name: str,
-    email: EmailStr,
-    password: str,
+    user: UserCreate,
     db: Session = Depends(get_db)
 ):
-    if len(password) > 72:
+    if len(user.password) > 72:
         raise HTTPException(status_code=400, detail="Password is too long")
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
     hashed_password = hashed_password.decode('utf-8')
-    user = User(
-        first_name = first_name,
-        second_name = second_name,
-        email = email,
+    db_user = User(
+        first_name = user.first_name,
+        second_name = user.second_name,
+        email = user.email,
         password = hashed_password
     )
-    db.add(user)
+    db.add(db_user)
     db.commit()
-    db.refresh(user)
-    return user
+    db.refresh(db_user)
+    return db_user
 
 
-@router.get("/log_in")
+@router.post("/log_in")
 def log_in(
-    email: str,
-    password: str,
+    user: LogInUser,
     db: Session = Depends(get_db)
 ):
-    user = db.query(User).filter(User.email == email).first()
-    if not user:
+    db_user = db.query(User).filter(User.email == user.email).first()
+    if not db_user:
         raise HTTPException(status_code=404, detail="email not found")
-    if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+    if bcrypt.checkpw(user.password.encode('utf-8'), db_user.password.encode('utf-8')):
         return {"messege": "login successful"}
     else:
         raise HTTPException(status_code=401, detail="wrong password")
 
 
-@router.post("/add_favourite_offers", description= "In query body you must input list of offer_id")
+@router.post(
+        "/add_favourite_offers", 
+        description= "In query body you must input list of offer_id", 
+        response_model=FavouriteOffer
+)
 def add_fav_offers(
-    user_id: int,
-    offers_id: list[int],
+    fav_offer: FavouriteOffer,
     db: Session = Depends(get_db)
 ):
     try:
-        fav_offers = insert(favourites).values([
-            {"user_id": user_id, "offer_id": offer_id}
-            for offer_id in offers_id
-        ])
-
-        db.execute(fav_offers)
+        result = insert(favourites).values(
+            {"user_id": fav_offer.user_id, "offer_id": fav_offer.offer_id}
+            )
+        
+        db.execute(result)
         db.commit()
-        return "favourite offers added successfully"
+        return {
+            "user_id": fav_offer.user_id,
+            "offer_id": fav_offer.offer_id
+        }
 
     except IntegrityError as e:
         db.rollback()
         
         if isinstance(e.orig, errors.UniqueViolation):
-            raise HTTPException(status_code=409, detail="Some offers are already in favourites")
+            raise HTTPException(status_code=409, detail="offers is already in favourites")
         elif isinstance(e.orig, errors.ForeignKeyViolation):
             raise HTTPException(status_code=400, detail="User or Offer/s not exists")
         else:
             raise HTTPException(status_code=500, detail="Database error")
-    except:
+    except Exception as e:
+        db.rollback()
         raise HTTPException(status_code=500, detail=f"{e}")
 
 
-@router.delete("/delete_favourite_offers")
+@router.delete("/{user_id}/delete_favourite_offers/{offer_id}")
 def del_fav_offers(
         user_id: int,
-        offers_id: list[int],
+        offer_id: int,
         db: Session = Depends(get_db)
 ):
     user = db.query(User).filter(User.user_id == user_id).first()
@@ -125,15 +125,12 @@ def del_fav_offers(
 
     count_deleted = db.query(favourites).filter(
         favourites.c.user_id == user_id,
-        favourites.c.offer_id.in_(offers_id)
+        favourites.c.offer_id == (offer_id)
     ).delete(synchronize_session=False)
 
-    if count_deleted != len(offers_id):
-        raise HTTPException(
-            status_code=400,
-            detail=f"Only {count_deleted} of {len(offers_id)} offers found in favourites"
-        )
+    if not count_deleted:
+        raise HTTPException(status_code=400, detail=f"offer not found")
 
     db.commit()
 
-    return {"message": f"Deleted {count_deleted} favourites offers"}
+    return {"message": "Favourite offer removed"}

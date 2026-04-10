@@ -60,7 +60,7 @@ class Offer(Base):
     
 
     seller = relationship("User", foreign_keys=[seller_id], back_populates="offers")
-    orderdetails = relationship("OrderDetail", back_populates="offer")
+    order_details = relationship("OrderDetail", back_populates="offer")
     subcategory = relationship("Subcategory", back_populates="offers")
     favourites_by = relationship(
         "User", 
@@ -80,7 +80,7 @@ class Order(Base):
     order_date = Column(DateTime, server_default=text("CURRENT_TIMESTAMP"))
 
     buyer = relationship("User", back_populates="orders")
-    orderdetails = relationship("OrderDetail", back_populates="order")
+    order_details = relationship("OrderDetail", back_populates="order")
 
 
 class OrderDetail(Base):
@@ -107,8 +107,8 @@ class OrderDetail(Base):
         )
     )
 
-    offer = relationship("Offer", back_populates="orderdetails")
-    order = relationship("Order", back_populates="orderdetails")
+    offer = relationship("Offer", back_populates="order_details")
+    order = relationship("Order", back_populates="order_details")
 
 
 class PriceLogs(Base):
