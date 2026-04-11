@@ -3,54 +3,69 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from models import User, Offer, favourites
-from sqlalchemy import func, insert
+from sqlalchemy import func, insert, or_, and_
 import bcrypt
 from psycopg2 import errors
-from schemas.user import UserCreate, UserResponse, LogInUser, FavouriteOffer
+from schemas.user import UserCreate, UserResponse, FavouriteOffer, FavouriteOfferResponse
 from schemas.offer import OfferResponse
+from routers.offer import filter_offers_by_active_status
+from datetime import timedelta
+from schemas.offer import AddOffer, OfferResponse, OfferUpdate, ExtendOffer
 
-router = APIRouter(prefix="/user", tags=["Users"])
 
 
-@router.get("/users", response_model=list[UserResponse])
+router = APIRouter(prefix="/users", tags=["Users"])
+
+@router.get("", response_model=list[UserResponse])
 def get_users(db: Session = Depends(get_db)):
     users = db.query(User).all()
     return users
 
 
-@router.get("/users_active_offers/{user_id}", response_model=OfferResponse)
-def get_users_offers(user_id: int, db: Session = Depends(get_db)):
-    user_offers = db.query(Offer).join(Offer).filter(
-        User.user_id == user_id,
-        Offer.is_active == True,
-        Offer.end_offer_date > func.now()
-    ).all()
-
-    return user_offers
+@router.get("/{user_id}", response_model=UserResponse)
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.user_id == user_id).first()
+    return user
 
 
-@router.get("/favorite_offers/{user_id}", response_model=OfferResponse)
+@router.get("/{user_id}/offers", response_model=list[OfferResponse])
+def get_users_offers(
+    user_id: int,
+    is_active: bool | None = None,
+    db: Session = Depends(get_db)
+):
+    offers = filter_offers_by_active_status(db, is_active)
+    offers = offers.filter(Offer.seller_id == user_id).all()
+
+    return offers
+
+
+@router.get("/{user_id}/favourites", response_model=list[OfferResponse])
 def get_favorite_offers(user_id: int, db: Session = Depends(get_db)):
     offers = db.query(Offer).join(
-        favourites, Offer.offer_id == favourites.c.offer_id 
+        favourites, and_(
+            Offer.offer_id == favourites.c.offer_id,
+            Offer.is_active == True
+        )
         ).filter(
             favourites.c.user_id == user_id,
-            Offer.is_active == True,
             Offer.end_offer_date > func.now()
         ).all()
     
     return offers
 
 
-@router.post("/create_user", response_model=UserResponse)
+@router.post("", response_model=UserResponse)
 def create_user(
     user: UserCreate,
     db: Session = Depends(get_db)
 ):
     if len(user.password) > 72:
         raise HTTPException(status_code=400, detail="Password is too long")
+    
     hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
     hashed_password = hashed_password.decode('utf-8')
+    
     db_user = User(
         first_name = user.first_name,
         second_name = user.second_name,
@@ -63,39 +78,25 @@ def create_user(
     return db_user
 
 
-@router.post("/log_in")
-def log_in(
-    user: LogInUser,
-    db: Session = Depends(get_db)
-):
-    db_user = db.query(User).filter(User.email == user.email).first()
-    if not db_user:
-        raise HTTPException(status_code=404, detail="email not found")
-    if bcrypt.checkpw(user.password.encode('utf-8'), db_user.password.encode('utf-8')):
-        return {"messege": "login successful"}
-    else:
-        raise HTTPException(status_code=401, detail="wrong password")
-
-
 @router.post(
-        "/add_favourite_offers", 
-        description= "In query body you must input list of offer_id", 
-        response_model=FavouriteOffer
+        "/{user_id}/favourites/{offer_id}",
+        response_model=FavouriteOfferResponse
 )
 def add_fav_offers(
-    fav_offer: FavouriteOffer,
+    user_id: int,
+    offer_id: int,
     db: Session = Depends(get_db)
 ):
     try:
         result = insert(favourites).values(
-            {"user_id": fav_offer.user_id, "offer_id": fav_offer.offer_id}
+            {"user_id": user_id, "offer_id": offer_id}
             )
         
         db.execute(result)
         db.commit()
         return {
-            "user_id": fav_offer.user_id,
-            "offer_id": fav_offer.offer_id
+            "user_id": user_id,
+            "offer_id": offer_id
         }
 
     except IntegrityError as e:
@@ -112,7 +113,7 @@ def add_fav_offers(
         raise HTTPException(status_code=500, detail=f"{e}")
 
 
-@router.delete("/{user_id}/delete_favourite_offers/{offer_id}")
+@router.delete("/{user_id}/favourites/{offer_id}")
 def del_fav_offers(
         user_id: int,
         offer_id: int,
@@ -125,7 +126,7 @@ def del_fav_offers(
 
     count_deleted = db.query(favourites).filter(
         favourites.c.user_id == user_id,
-        favourites.c.offer_id == (offer_id)
+        favourites.c.offer_id == offer_id
     ).delete(synchronize_session=False)
 
     if not count_deleted:

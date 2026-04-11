@@ -8,9 +8,9 @@ class OrderedOffers(BaseModel):
 
 
 class OrderDetailsRespone(BaseModel):
-    order_id: int
+    #order_id: int
     offer_id: int
-    order_date: datetime
+    #order_date: datetime
     unit_price: Decimal = Field(decimal_places=2)
     quantity: int
     title: str

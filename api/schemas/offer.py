@@ -1,7 +1,7 @@
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator, Field
 from datetime import datetime
 from enum import Enum
-
+from decimal import Decimal
 
 class OfferDuration(int, Enum):
     thirty_days = 30
@@ -13,25 +13,19 @@ class OfferDuration(int, Enum):
 class AddOffer(BaseModel):
     seller_id:      int
     subcategory_id: int
-    unit_price:     float
-    quantity:       int
+    unit_price:     Decimal = Field(gt=0, decimal_places=2)
+    quantity:       int = Field(gt=0)
     title:          str
     description:    str
     photo:          str
-    offer_duration: int
-
-    @field_validator("offer_duration")
-    def duration_must_be_positive(cls, offer_duration):
-        if offer_duration <= 0:
-            raise ValueError("Offer duration must be positive")
-        return offer_duration
+    offer_duration: int = Field(gt=0)
 
 
 class OfferResponse(BaseModel):
     offer_id:           int
     seller_id:          int
     subcategory_id:     int
-    unit_price:         float
+    unit_price:         Decimal = Field(gt=0, decimal_places=2)
     quantity:           int
     title:              str
     description:        str
@@ -44,7 +38,7 @@ class OfferResponse(BaseModel):
 
 
 class OfferUpdate(BaseModel):
-    unit_price:     float | None = None
+    unit_price:     Decimal | None = Field(default=None, gt=0, decimal_places=2)
     quantity:       int | None = None
     title:          str | None = None
     description:    str | None = None
@@ -52,10 +46,4 @@ class OfferUpdate(BaseModel):
 
 
 class ExtendOffer(BaseModel):
-    extra_days:     int
-
-    @field_validator("extra_days")
-    def extra_days_must_be_positive(cls, extra_days):
-        if extra_days <= 0:
-            raise ValueError("Offer duration must be positive")
-        return extra_days
+    extra_days:     int = Field(gt=0)
