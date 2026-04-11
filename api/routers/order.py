@@ -3,34 +3,37 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import InternalError
 from models import Order, OrderDetail
-from schemas.order import OrderedOffers, OrderOfferRespone
+from schemas.order import OrderedOffers, OrderOfferRespone, OrderDetailsRespone
 
-router = APIRouter(prefix="/order", tags=["Order and Order Details"])
+router = APIRouter(prefix="/orders", tags=["Orders and Order Details"])
 
 
-@router.get("/orders")
-def get_offers(db: Session = Depends(get_db)):
+@router.get("")
+def get_orders(db: Session = Depends(get_db)):
     order = db.query(Order).all()
     return order
 
 
-@router.get("/order_details")
-def get_orders(db: Session = Depends(get_db)):
-    orderdetails = db.query(OrderDetail).all()
-    return orderdetails
+@router.get("/{order_id}")
+def get_order(
+    order_id: int,
+    db: Session = Depends(get_db)
+):
+    order = db.query(Order).filter(Order.order_id == order_id).first()
+    return order
 
 
-@router.get("{order_id}/order_and_order_details/")
-def get_orders_and_order_details( order_id: int, db: Session = Depends(get_db)):
-    result = db.query(Order, OrderDetail).join(OrderDetail).filter(Order.order_id == order_id).all()
-    return [
-        {**order.__dict__, **orderdetails.__dict__}
-        for order, orderdetails in result
-    ]
+@router.get("/{order_id}/order_details", response_model=list[OrderDetailsRespone])
+def get_orders(
+    order_id: int,
+    db: Session = Depends(get_db)
+):
+    order_details = db.query(OrderDetail).filter(OrderDetail.order_id == order_id).all()
+    return order_details
 
 
 @router.post(
-    "/take_an_order/{buyer_id}",
+    "",
     description=
     """
         You can order more than one offer.\n
@@ -84,10 +87,3 @@ def create_order(
         )
 
 
-@router.get("/get_users_orders_by_id/{user_id}", response_model=OrderOfferRespone)
-def get_users_orders_by_id(
-    user_id: int,
-    db: Session = Depends(get_db)
-):
-    result = db.query(Order).filter(Order.buyer_id == user_id).first()
-    return result

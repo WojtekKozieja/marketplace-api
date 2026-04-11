@@ -20,6 +20,13 @@ class LogInUser(BaseModel):
     email: EmailStr
     password: str
 
+
 class FavouriteOffer(BaseModel):
+    offer_id: int
+
+
+class FavouriteOfferResponse(BaseModel):
     user_id: int
     offer_id: int
+
+    model_config = ConfigDict(from_attributes=True)
