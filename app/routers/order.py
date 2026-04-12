@@ -1,39 +1,52 @@
 from database import get_db
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import func
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import InternalError
-from models import Order, OrderDetail
-from schemas.order import OrderedOffers, OrderOfferRespone, OrderDetailsRespone
+from sqlalchemy.exc import IntegrityError, InternalError
+from psycopg2 import errors
+from models import Order, OrderDetail, Offer
+from schemas.order import OrderOffers, OrderOfferRespone, OrderDetailRespone, OrderResponse
+from routers.auth import get_current_user
+router = APIRouter(prefix="/users", tags=["Orders and Order Details"])
 
-router = APIRouter(prefix="/orders", tags=["Orders and Order Details"])
 
-
-@router.get("")
-def get_orders(db: Session = Depends(get_db)):
-    order = db.query(Order).all()
+@router.get("/me/orders", response_model=list[OrderResponse])
+def get_orders(
+    current_user_id: int = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    order = db.query(Order).filter(Order.buyer_id == current_user_id).all()
     return order
 
 
-@router.get("/{order_id}")
+@router.get("/me/orders/{order_id}", response_model=OrderResponse)
 def get_order(
     order_id: int,
+    current_user_id: int = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    order = db.query(Order).filter(Order.order_id == order_id).first()
+    order = db.query(Order).filter(
+        Order.order_id == order_id,
+        Order.buyer_id == current_user_id
+        ).first()
     return order
 
 
-@router.get("/{order_id}/order_details", response_model=list[OrderDetailsRespone])
-def get_orders(
+@router.get("/me/orders/{order_id}/order_details", response_model=list[OrderDetailRespone])
+def get_order_details(
     order_id: int,
+    current_user_id: int = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    order_details = db.query(OrderDetail).filter(OrderDetail.order_id == order_id).all()
+    order_details = db.query(OrderDetail).filter(
+        Order.buyer_id == current_user_id,    
+        OrderDetail.order_id == order_id
+    ).all()
     return order_details
 
 
 @router.post(
-    "",
+    "/me/orders",
     description=
     """
         You can order more than one offer.\n
@@ -51,13 +64,23 @@ def get_orders(
     """,
     response_model=OrderOfferRespone)
 def create_order(
-    buyer_id: int,
-    ordered_offers: list[OrderedOffers],
+    ordered_offers: list[OrderOffers],
+    current_user_id: int = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    offer_ids = [o.offer_id for o in ordered_offers]
+    offer = db.query(Offer).filter(
+        Offer.offer_id.in_(offer_ids),
+        Offer.is_active == True,
+        Offer.end_offer_date > func.now()
+    ).all()
+
+    if len(offer) != len(ordered_offers):
+        raise HTTPException(status_code=404, detail="Offer not found")
+    
     try:
         order = Order(
-            buyer_id = buyer_id
+            buyer_id = current_user_id
         )
         db.add(order)
         db.flush()
@@ -77,13 +100,17 @@ def create_order(
         db.refresh(order)
         return order
     
+    except IntegrityError as e:
+        db.rollback()
+        
+        if isinstance(e.orig, errors.ForeignKeyViolation):
+            raise HTTPException(status_code=404, detail="Offer not found")
+        elif isinstance(e.orig, errors.UniqueViolation):
+            raise HTTPException(status_code=409, detail="Duplicate offer_id in order")
+        raise HTTPException(status_code=500, detail="Database error")
+     
     except InternalError as e:
         db.rollback()
-        error_message = str(e.orig).strip()
 
-        raise HTTPException(
-            status_code=404,
-            detail=f"{error_message}"
-        )
-
+        raise HTTPException(status_code=400,detail=str(e.orig).strip())
 

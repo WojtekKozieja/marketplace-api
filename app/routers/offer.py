@@ -1,10 +1,9 @@
-from database import get_db
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from models import Offer, Subcategory
 from sqlalchemy import func, or_
-from datetime import timedelta
-from schemas.offer import AddOffer, OfferResponse, OfferUpdate, ExtendOffer
+from sqlalchemy.orm import Session
+from database import get_db
+from models import Offer, Subcategory
+from schemas.offer import OfferResponse
 from schemas.price_log import PriceLogsResponse
 from models import PriceLogs
 
@@ -46,9 +45,6 @@ def get_offers(
     is_active: bool    | None = None,
     db: Session = Depends(get_db)):
 
-    #if not subcategory_id and not category_id:
-    #    raise HTTPException(status_code=404, detail="You must choose category_id or subcategory_id.")
-
     result = filter_offers_by_active_status(db, is_active)
     
     if subcategory_id:
@@ -56,9 +52,9 @@ def get_offers(
     elif category_id:
         result = result.join(Offer.subcategory).filter(Subcategory.category_id == category_id)
 
-    if(max_price):
+    if max_price:
         result = result.filter(Offer.unit_price <= max_price)
-    if(min_price):
+    if min_price:
         result = result.filter(Offer.unit_price >= min_price)
 
     return result.all()
@@ -66,69 +62,17 @@ def get_offers(
 
 @router.get("/{offer_id}", response_model=OfferResponse)
 def get_offers_by_id(offer_id: int, db: Session = Depends(get_db)):
-    return db.query(Offer).filter(Offer.offer_id == offer_id).first()
+    result = db.query(Offer).filter(Offer.offer_id == offer_id).first()
+    if not result:
+        raise HTTPException(status_code=404, detail="Offer not found")
+    
+    return result
 
 
 @router.get("/{offer_id}/price_logs", response_model=list[PriceLogsResponse])
 def get_price_logs(offer_id: int, db: Session = Depends(get_db)):
     result = db.query(PriceLogs).filter(PriceLogs.offer_id == offer_id).all()
+    if not result:
+        raise HTTPException(status_code=404, detail="Offer not found")
+
     return result
-
-
-@router.post("", response_model=OfferResponse)
-def create_offer(
-    new_offer: AddOffer,
-    db: Session = Depends(get_db)):
-
-    new_offer = Offer(
-        seller_id = new_offer.seller_id,
-        unit_price = new_offer.unit_price,
-        quantity = new_offer.quantity,
-        title = new_offer.title,
-        description = new_offer.description,
-        photo = new_offer.photo,
-        subcategory_id = new_offer.subcategory_id,
-        end_offer_date = func.now() + timedelta(days=new_offer.offer_duration)
-    )
-
-    db.add(new_offer)
-    db.commit()
-    db.refresh(new_offer)
-    return new_offer
-
-
-@router.patch('/{offer_id}')
-def change_offer(
-    offer_id: int,
-    data: OfferUpdate,
-    db: Session = Depends(get_db)):
-
-    offer = db.query(Offer).filter(Offer.offer_id == offer_id).first()
-
-    for field, value in data.model_dump(exclude_none=True).items():
-        setattr(offer, field, value)
-
-    db.commit()
-    db.refresh(offer)
-    return offer
-
-
-@router.patch("/{offer_id}/end-date", response_model=OfferResponse)
-def update_end_offer_day(
-    offer_id: int,
-    extra_days: ExtendOffer,
-    db: Session = Depends(get_db)
-):
-    offer = db.query(Offer).filter(
-        Offer.offer_id == offer_id,
-        Offer.is_active == True,
-        Offer.end_offer_date > func.now()
-        ).first()
-    
-    if not offer:
-        raise HTTPException(status_code=404, detail="Wrong offer_id. You can extend only active offers.")
-    
-    offer.end_offer_date = offer.end_offer_date + timedelta(days=extra_days.extra_days)
-    db.commit()
-    db.refresh(offer)
-    return offer
