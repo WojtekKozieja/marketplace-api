@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
+from pydantic import Field
 from database import get_db
 from models import Offer, Subcategory
 from schemas.offer import OfferResponse
@@ -40,8 +41,8 @@ If you choose category_id and subcategory_id, it will find offers matching to su
 def get_offers(
     category_id: int    | None = None,
     subcategory_id: int | None = None,
-    min_price: float    | None = None,
-    max_price: float    | None = None,
+    min_price: float    | None = Query(default=None, gt=0),
+    max_price: float    | None = Query(default=None, gt=0),
     is_active: bool    | None = None,
     db: Session = Depends(get_db)) -> Page[OfferResponse]:
 

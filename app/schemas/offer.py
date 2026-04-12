@@ -14,9 +14,9 @@ class AddOffer(BaseModel):
     subcategory_id: int
     unit_price:     Decimal = Field(gt=0, decimal_places=2)
     quantity:       int = Field(gt=0)
-    title:          str
-    description:    str
-    photo:          str
+    title:          str = Field(min_length=1, max_length=50)
+    description:    str = Field(min_length=1, max_length=1000)
+    photo:          str = Field(min_length=1, max_length=100)
     offer_duration: int = Field(gt=0)
 
 
@@ -24,7 +24,7 @@ class OfferResponse(BaseModel):
     offer_id:           int
     seller_id:          int
     subcategory_id:     int
-    unit_price:         Decimal = Field(gt=0, decimal_places=2)
+    unit_price:         Decimal
     quantity:           int
     title:              str
     description:        str
@@ -38,10 +38,10 @@ class OfferResponse(BaseModel):
 
 class OfferUpdate(BaseModel):
     unit_price:     Decimal | None = Field(default=None, gt=0, decimal_places=2)
-    quantity:       int | None = None
-    title:          str | None = None
-    description:    str | None = None
-    photo:          str | None = None
+    quantity:       int | None = Field(default=None, gt=0)
+    title:          str | None = Field(default=None, min_length=1, max_length=50)
+    description:    str | None = Field(default=None, min_length=1, max_length=1000)
+    photo:          str | None = Field(default=None, min_length=1, max_length=100)
 
 
 class ExtendOffer(BaseModel):
