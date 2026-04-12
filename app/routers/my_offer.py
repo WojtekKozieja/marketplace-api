@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from datetime import timedelta
@@ -8,18 +10,18 @@ from schemas.offer import OfferResponse, AddOffer, OfferUpdate, ExtendOffer
 from routers.auth import get_current_user
 from routers.offer import filter_offers_by_active_status
 
-router = APIRouter(prefix="/users", tags=["User Offers"])
+router = APIRouter(prefix="/users", tags=["My Offers"])
 
-@router.get("/me/offers", response_model=list[OfferResponse])
+@router.get("/me/offers")
 def get_users_offers(
     is_active: bool | None = None,
     current_user_id: int = Depends(get_current_user),
     db: Session = Depends(get_db)
-):
+) -> Page[OfferResponse]:
     offers = filter_offers_by_active_status(db, is_active)
-    offers = offers.filter(Offer.seller_id == current_user_id).all()
+    offers = offers.filter(Offer.seller_id == current_user_id)
 
-    return offers
+    return paginate(db, offers.order_by(Offer.start_offer_date.desc()))
 
 
 @router.post("/me/offers", response_model=OfferResponse)

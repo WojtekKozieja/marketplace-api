@@ -10,3 +10,4 @@ requests==2.32.3
 python-dotenv==1.2.2
 python-multipart==0.0.26
 python-jose[cryptography]==3.5.0
+fastapi-pagination==0.15.12

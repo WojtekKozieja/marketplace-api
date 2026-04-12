@@ -1,5 +1,7 @@
 from database import get_db
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 import bcrypt
@@ -9,10 +11,9 @@ from routers.auth import get_current_user
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
-@router.get("", response_model=list[UserResponse])
-def get_users(db: Session = Depends(get_db)):
-    users = db.query(User).all()
-    return users
+@router.get("")
+def get_users(db: Session = Depends(get_db)) -> Page[UserResponse]:
+    return paginate(db, db.query(User).order_by(User.user_id))
 
 
 @router.get("/me", response_model=UserResponse)
@@ -21,7 +22,6 @@ def get_user(
     db: Session = Depends(get_db)
 ):
     return db.query(User).filter(User.user_id == current_user_id).first()
-
 
 
 @router.post("", response_model=UserResponse)
