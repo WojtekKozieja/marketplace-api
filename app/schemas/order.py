@@ -12,12 +12,12 @@ class OrderResponse(BaseModel):
 
 class OrderOffers(BaseModel):
     offer_id: int
-    quantity: int
+    quantity: int = Field(gt=0)
 
 
 class OrderDetailRespone(BaseModel):
     offer_id: int
-    unit_price: Decimal = Field(decimal_places=2)
+    unit_price: Decimal
     quantity: int
     title: str
     photo: str

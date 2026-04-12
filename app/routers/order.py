@@ -1,4 +1,3 @@
-from database import get_db
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
@@ -6,6 +5,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, InternalError
 from psycopg2 import errors
+from database import get_db
 from models import Order, OrderDetail, Offer
 from schemas.order import OrderOffers, OrderOfferRespone, OrderDetailRespone, OrderResponse
 from routers.auth import get_current_user
@@ -30,7 +30,11 @@ def get_order(
     order = db.query(Order).filter(
         Order.order_id == order_id,
         Order.buyer_id == current_user_id
-        ).first()
+    ).first()
+
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
     return order
 
 
@@ -47,8 +51,7 @@ def get_order_details(
     return order_details
 
 
-@router.post(
-    "/me/orders",
+@router.post("/me/orders", response_model=OrderOfferRespone,
     description=
     """
         You can order more than one offer.\n
@@ -63,8 +66,8 @@ def get_order_details(
                 "quantity": 3
             }
         ]
-    """,
-    response_model=OrderOfferRespone)
+    """
+)
 def create_order(
     ordered_offers: list[OrderOffers],
     current_user_id: int = Depends(get_current_user),
