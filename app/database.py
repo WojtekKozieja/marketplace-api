@@ -23,7 +23,16 @@ Base = declarative_base()
 
 app = FastAPI(
     title="Marketplace API",
-    description="API for online marketplace",
+    description="""
+API for online marketplace
+
+### Test credentials
+You can use the existing test account or create a new one via 'POST /users'.
+
+**email/username:** user@test.com\n
+**password:** MarketplaceAPP
+    """,
+    
     version="1.0.0"
 )
 
