@@ -4,7 +4,7 @@ CREATE TABLE public.orders
 (
 	order_id bigint GENERATED ALWAYS AS IDENTITY,
 	buyer_id bigint NOT NULL,
-	order_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	order_date timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY ( order_id, order_date ),
 	CONSTRAINT buyer_id_fkey FOREIGN KEY ( buyer_id )
 		REFERENCES public.users ( user_id )

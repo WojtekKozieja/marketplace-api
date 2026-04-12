@@ -11,8 +11,8 @@ CREATE TABLE public.offers
 	title varchar(50) NOT NULL,
 	description varchar(1000) NOT NULL,
 	photo varchar(100), -- path to photo
-	start_offer_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	end_offer_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP + INTERVAL '30 days',
+	start_offer_date timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	end_offer_date timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP + INTERVAL '30 days',
     is_active boolean NOT NULL DEFAULT TRUE,
 	PRIMARY KEY ( offer_id, is_active ),
 	CONSTRAINT seller_id_fkey FOREIGN KEY ( seller_id )

@@ -30,7 +30,7 @@ API for online marketplace
 You can use the existing test account or create a new one via 'POST /users'.
 
 **email/username:** user@test.com\n
-**password:** MarketplaceAPP
+**password:** MarketplaceAPI
     """,
     
     version="1.0.0"

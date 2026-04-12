@@ -3,7 +3,7 @@
 CREATE TABLE public.price_logs
 (
     offer_id bigint,
-    changed_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    changed_date timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     new_price numeric(10,2) NOT NULL CHECK ( new_price >= 0 ),
     is_active boolean NOT NULL,
     PRIMARY KEY (offer_id, changed_date),

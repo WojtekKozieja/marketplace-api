@@ -18,7 +18,7 @@ users = [
     {"first_name": "Joseph", "second_name": "Anderson", "email": "user15@test.com", "password": "pass15"},
     {"first_name": "Megan", "second_name": "Thomas", "email": "user16@test.com", "password": "pass16"},
     {"first_name": "Joshua", "second_name": "Taylor", "email": "user17@test.com", "password": "pass17"},
-    {"first_name": "John", "second_name": "Smith", "email": "user@test.com", "password": "MarketplaceAPP"},
+    {"first_name": "John", "second_name": "Smith", "email": "user@test.com", "password": "MarketplaceAPI"},
     {"first_name": "Lauren", "second_name": "Moore", "email": "user18@test.com", "password": "pass18"},
     {"first_name": "Andrew", "second_name": "Jackson", "email": "user19@test.com", "password": "pass19"},
     {"first_name": "Nicole", "second_name": "Martin", "email": "user20@test.com", "password": "pass20"},
