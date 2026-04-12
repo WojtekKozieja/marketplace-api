@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, field_validator, Field
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 from enum import Enum
 from decimal import Decimal
@@ -11,7 +11,6 @@ class OfferDuration(int, Enum):
 
 
 class AddOffer(BaseModel):
-    seller_id:      int
     subcategory_id: int
     unit_price:     Decimal = Field(gt=0, decimal_places=2)
     quantity:       int = Field(gt=0)
