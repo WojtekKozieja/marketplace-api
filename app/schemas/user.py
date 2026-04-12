@@ -13,4 +13,4 @@ class UserCreate(BaseModel):
     first_name: str = Field(min_length=1, max_length=30)
     second_name: str = Field(min_length=1, max_length=30)
     email: EmailStr = Field(max_length=50)
-    password: str= Field(min_length=8, max_length=72)
+    password: str = Field(min_length=8, max_length=72)
