@@ -4,7 +4,7 @@ CREATE TABLE public.order_details
 (
 	order_id bigint,
 	offer_id bigint,
-	order_date timestamp,
+	order_date timestamptz,
 	unit_price numeric(10,2) NOT NULL CHECK ( unit_price >= 0 ),
 	quantity int NOT NULL,
     title varchar(50) NOT NULL,
