@@ -24,7 +24,12 @@ BEGIN
         is_active = CASE
             WHEN quantity - new.quantity = 0 THEN FALSE
             ELSE TRUE
+        END,
+        end_offer_date = CASE
+            WHEN quantity - new.quantity = 0 THEN CURRENT_TIMESTAMP
+            ELSE end_offer_date
         END
+
     WHERE offer_id = new.offer_id AND is_active = TRUE; --partition pruning
 
     RETURN new;
