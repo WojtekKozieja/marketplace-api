@@ -1,7 +1,7 @@
 import requests
 
 users = [
-    {"first_name": "John", "second_name": "Smith", "email": "user1@test.com", "password": "pass1"},
+    {"first_name": "Olivia", "second_name": "Jimenez", "email": "user1@test.com", "password": "pass1"},
     {"first_name": "Emily", "second_name": "Johnson", "email": "user2@test.com", "password": "pass2"},
     {"first_name": "Michael", "second_name": "Williams", "email": "user3@test.com", "password": "pass3"},
     {"first_name": "Sarah", "second_name": "Brown", "email": "user4@test.com", "password": "pass4"},
@@ -18,6 +18,7 @@ users = [
     {"first_name": "Joseph", "second_name": "Anderson", "email": "user15@test.com", "password": "pass15"},
     {"first_name": "Megan", "second_name": "Thomas", "email": "user16@test.com", "password": "pass16"},
     {"first_name": "Joshua", "second_name": "Taylor", "email": "user17@test.com", "password": "pass17"},
+    {"first_name": "John", "second_name": "Smith", "email": "user@test.com", "password": "MarketplaceAPP"},
     {"first_name": "Lauren", "second_name": "Moore", "email": "user18@test.com", "password": "pass18"},
     {"first_name": "Andrew", "second_name": "Jackson", "email": "user19@test.com", "password": "pass19"},
     {"first_name": "Nicole", "second_name": "Martin", "email": "user20@test.com", "password": "pass20"},
@@ -100,13 +101,12 @@ users = [
     {"first_name": "Eugene", "second_name": "Long", "email": "user97@test.com", "password": "pass97"},
     {"first_name": "Hannah", "second_name": "Ross", "email": "user98@test.com", "password": "pass98"},
     {"first_name": "Martin", "second_name": "Foster", "email": "user99@test.com", "password": "pass99"},
-    {"first_name": "Olivia", "second_name": "Jimenez", "email": "user100@test.com", "password": "pass100"},
 ]
 
 for user in users:
     response = requests.post(
-        "http://localhost:8000/user/Create_user",
-        params={
+        "http://localhost:8000/users",
+        json={
             "first_name": user["first_name"],
             "second_name": user["second_name"],
             "email": user["email"],
