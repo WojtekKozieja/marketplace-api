@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import insert, and_, func
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -12,11 +14,11 @@ from models import favourites, Offer, User
 
 router = APIRouter(prefix="/users", tags=["Favourites"])
 
-@router.get("/me/favourites", response_model=list[OfferResponse])
+@router.get("/me/favourites")
 def get_favourite_offers(
     current_user_id: int = Depends(get_current_user),
     db: Session = Depends(get_db)
-):
+) -> Page[OfferResponse]:
     offers = db.query(Offer).join(
         favourites, and_(
             Offer.offer_id == favourites.c.offer_id,
@@ -25,9 +27,9 @@ def get_favourite_offers(
         ).filter(
             favourites.c.user_id == current_user_id,
             Offer.end_offer_date > func.now()
-        ).all()
+        )
     
-    return offers
+    return paginate(db, offers.order_by(Offer.offer_id))
 
 
 @router.post(

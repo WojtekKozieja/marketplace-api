@@ -94,7 +94,6 @@ INSERT INTO public.subcategories (category_id, subcategory_name) VALUES
 
 
 -- migrate:down
-SELECT end_offer_date
-    FROM marketplace.public.offers
+
 TRUNCATE TABLE public.subcategories RESTART IDENTITY CASCADE;
 TRUNCATE TABLE public.categories RESTART IDENTITY CASCADE;

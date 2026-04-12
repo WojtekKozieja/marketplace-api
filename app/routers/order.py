@@ -1,5 +1,7 @@
 from database import get_db
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError, InternalError
@@ -10,13 +12,13 @@ from routers.auth import get_current_user
 router = APIRouter(prefix="/users", tags=["Orders and Order Details"])
 
 
-@router.get("/me/orders", response_model=list[OrderResponse])
+@router.get("/me/orders")
 def get_orders(
     current_user_id: int = Depends(get_current_user),
     db: Session = Depends(get_db)
-):
-    order = db.query(Order).filter(Order.buyer_id == current_user_id).all()
-    return order
+) -> Page[OrderResponse]:
+    order = db.query(Order).filter(Order.buyer_id == current_user_id)
+    return paginate(db, order.order_by(Order.order_date.desc()))
 
 
 @router.get("/me/orders/{order_id}", response_model=OrderResponse)

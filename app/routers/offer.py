@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 from database import get_db
@@ -32,10 +34,8 @@ def filter_offers_by_active_status(db, is_active: bool | None):
         tags=(["Offers"]), 
         description=
         """
-            If you choose category_id and subcategory_id, it will find offers matching to subcategory even if category_id dont match to subcategory_id.\n
-            Check section "Category and Subcategory" to find matching category_id to subcategory_id.
-        """,
-        response_model=list[OfferResponse]
+If you choose category_id and subcategory_id, it will find offers matching to subcategory even if category_id dont match to subcategory_id
+        """
 )
 def get_offers(
     category_id: int    | None = None,
@@ -43,7 +43,7 @@ def get_offers(
     min_price: float    | None = None,
     max_price: float    | None = None,
     is_active: bool    | None = None,
-    db: Session = Depends(get_db)):
+    db: Session = Depends(get_db)) -> Page[OfferResponse]:
 
     result = filter_offers_by_active_status(db, is_active)
     
@@ -57,7 +57,7 @@ def get_offers(
     if min_price:
         result = result.filter(Offer.unit_price >= min_price)
 
-    return result.all()
+    return paginate(db, result.order_by(Offer.start_offer_date.desc()))
 
 
 @router.get("/{offer_id}", response_model=OfferResponse)
