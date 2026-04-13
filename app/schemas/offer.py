@@ -17,7 +17,7 @@ class AddOffer(BaseModel):
     title:          str = Field(min_length=1, max_length=50)
     description:    str = Field(min_length=1, max_length=1000)
     photo:          str = Field(min_length=1, max_length=100)
-    offer_duration: int = Field(gt=0)
+    offer_duration: int = Field(gt=0, description="Duration of the offer in days")
 
 
 class OfferResponse(BaseModel):
@@ -45,4 +45,4 @@ class OfferUpdate(BaseModel):
 
 
 class ExtendOffer(BaseModel):
-    extra_days:     int = Field(gt=0)
+    extra_days:     int = Field(gt=0, description="Number of days to extend the offer")
