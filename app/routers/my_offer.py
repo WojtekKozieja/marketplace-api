@@ -5,7 +5,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from database import get_db
-from models import Offer
+from models import Offer, Subcategory
 from schemas.offer import OfferResponse, AddOffer, OfferUpdate, ExtendOffer
 from routers.auth import get_current_user
 from routers.offer import filter_offers_by_active_status
@@ -29,6 +29,10 @@ def create_offer(
     new_offer: AddOffer,
     current_user_id: int = Depends(get_current_user),
     db: Session = Depends(get_db)):
+
+    subcategory = db.query(Subcategory).filter(Subcategory.subcategory_id == new_offer.subcategory_id).first()
+    if not subcategory:
+        raise HTTPException(status_code=404, detail="Subcategory not found")
 
     new_offer = Offer(
         seller_id = current_user_id,
