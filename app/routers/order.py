@@ -9,10 +9,10 @@ from database import get_db
 from models import Order, OrderDetail, Offer
 from schemas.order import OrderOffers, OrderOfferRespone, OrderDetailRespone, OrderResponse
 from routers.auth import get_current_user
-router = APIRouter(prefix="/users", tags=["Orders and Order Details"])
+router = APIRouter(prefix="/users/me/orders", tags=["Orders and Order Details"])
 
 
-@router.get("/me/orders")
+@router.get("")
 def get_orders(
     current_user_id: int = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -21,7 +21,7 @@ def get_orders(
     return paginate(db, order.order_by(Order.order_date.desc()))
 
 
-@router.get("/me/orders/{order_id}", response_model=OrderResponse)
+@router.get("/{order_id}", response_model=OrderResponse)
 def get_order(
     order_id: int,
     current_user_id: int = Depends(get_current_user),
@@ -38,7 +38,7 @@ def get_order(
     return order
 
 
-@router.get("/me/orders/{order_id}/order_details", response_model=list[OrderDetailRespone])
+@router.get("/{order_id}/order_details", response_model=list[OrderDetailRespone])
 def get_order_details(
     order_id: int,
     current_user_id: int = Depends(get_current_user),
@@ -51,7 +51,7 @@ def get_order_details(
     return order_details
 
 
-@router.post("/me/orders", response_model=OrderOfferRespone,
+@router.post("", response_model=OrderOfferRespone,
     description=
     """
         You can order more than one offer.\n

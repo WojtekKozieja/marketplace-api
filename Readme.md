@@ -1,5 +1,7 @@
 # Marketplace API
 
+🌐 **Live API:** [marketplace-api](http://3.236.245.192:8000/docs)
+
 A full-featured online marketplace platform built with FastAPI and PostgreSQL, featuring advanced database partitioning, triggers, and real-time offer management.
 
 ## ✨ Features
@@ -16,10 +18,10 @@ A full-featured online marketplace platform built with FastAPI and PostgreSQL, f
 
 - **Backend Framework**: FastAPI 0.135.1
 - **Database**: PostgreSQL with SQLAlchemy 2.0.48
-- **Authentication**: bcrypt 5.0.0
+- **Authentication**: bcrypt 5.0.0, JWT Tokens (python-jose)
 - **Task Scheduling**: APScheduler 3.11.2
 - **Server**: Uvicorn 0.42.0
-- **Deployment**: Render.com
+- **Deployment**: AWS EC2
 - **Data Validation**: Pydantic 2.12.5
 
 ## 🗄 Database Architecture
@@ -66,22 +68,35 @@ Four automated triggers handle business logic:
 ## 📁 Project Structure
 
 ```
-marketplace/
-├── api/
-│   ├── routers/
-│   │   ├── user.py
+marketplace-api
+├── app
+│   ├── __init__.py
+│   ├── database.py
+│   ├── main.py
+│   ├── models.py
+│   ├── scheduled_deactivate_offers.py
+│   ├── routers
+│   │   ├── __init__.py
+│   │   ├── auth.py
 │   │   ├── category.py
+│   │   ├── favourite.py
+│   │   ├── my_offer.py
 │   │   ├── offer.py
 │   │   ├── order.py
-│   │   └── price_log.py
-│   ├── test_inserts/
-│   │   └── insert_users.py
-│   ├── database.py
-│   ├── models.py
-│   ├── main.py
-│   └── cron_deactivate_offers.py
+│   │   └── user.py
+│   ├── schemas
+│   │   ├── __init__.py
+│   │   ├── auth.py
+│   │   ├── category.py
+│   │   ├── favourites.py
+│   │   ├── offer.py
+│   │   ├── order.py
+│   │   ├── price_log.py
+│   │   └── user.py
+│   └── test_inserts
+│       └── insert_users.py
 │
-├── database/
+├── database
 │   ├── 1_Create_Users.sql
 │   ├── 2_Create_Categories.sql
 │   ├── 3_Create_Offers.sql
@@ -89,75 +104,97 @@ marketplace/
 │   ├── 5_Create_Order_Details.sql
 │   ├── 6_Create_Price_Logs.sql
 │   ├── 7_Create_Favourites.sql
-│   ├── triggers/
-│   │   ├── 11_Trigger_Order_Details.sql
-│   │   ├── 12_Trigger_Price_Logs.sql
-│   │   ├── 13_Trigger_Offers_Quantity.sql
-│   │   └── 14_Trigger_Favourites.sql
-│   └── test_inserts/
-│       ├── 92_Insert_Categories.sql
-│       ├── 93_Insert_Offers.sql
-│       ├── 94_Insert_Orders.sql
-│       ├── 95_Insert_Favourities.sql
-│       └── 96_Insert_Order_Details.sql
-│
-├── .env.example
-├── .gitignore
+│   ├── test_inserts
+│   │   ├── 92_Insert_Categories.sql
+│   │   ├── 93_Insert_Offers.sql
+│   │   ├── 94_Insert_Orders.sql
+│   │   ├── 95_Insert_Favourities.sql
+│   │   └── 96_Insert_Order_Details.sql
+│   └── triggers
+│       ├── 11_Trigger_Order_Details.sql
+│       ├── 12_Trigger_Price_Logs.sql
+│       ├── 13_Trigger_Offers_Quantity.sql
+│       └── 14_Trigger_Favourites.sql
 ├── Readme.md
-├── render.yaml
-└── requirements.txt
+├── requirements.txt
+├── .env.example
+└── .gitignore
 ```
 
 
 ## 📡 API Endpoints
+🔒 — requires Bearer JWT token
 
-### Users (`/user`)
+### Auth
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/user/users` | Get all users |
-| GET | `/user/users-offers?user_id={id}` | Get user's offers |
-| GET | `/user/favorite_offers?user_id={id}` | Get user's favorite offers |
-| POST | `/user/Create_user` | Register new user |
-| GET | `/user/log_in` | User login |
+| POST   | `/token` | Login — returns JWT access token |
+
+&nbsp;
+
+### Users (`/users`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET    | `/users` | Get all users (paginated) |
+| GET    | `/users/me` | Get current user 🔒 |
+| POST   | `/users` | Register new user |
 
 **Password Security**
 
 - Passwords hashed using bcrypt with salt
 - Maximum password length: 72 characters
-- Secure login validation
+- Authentication via JWT token (Bearer, expires in 30 min)
 
-### Categories (`/category`)
+&nbsp;
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/category/category` | Get all categories |
-| GET | `/category/Subcategory` | Get all subcategories |
-
-### Offers (`/offer`)
+### Categories (`/categories`)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/offer/all_offers` | Get all offers |
-| GET | `/offer/search_offer_by_id?offer_id={id}` | Search offer by ID |
-| GET | `/offer/search_active_offers` | Search active offers with filters |
-| POST | `/offer/add_offer` | Create new offer |
-| PUT | `/offer/change_offer` | Update existing offer |
-| PUT | `/offer/extend_offer` | Extend offer duration |
+| GET    | `/categories` | Get all categories |
+| GET    | `/categories/{category_id}` | Get category by ID |
+| GET    | `/categories/{category_id}/subcategories` | Get subcategories |
 
-### Orders (`/order`)
+&nbsp;
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/order/orders` | Get all orders |
-| GET | `/order/order_details` | Get all order details |
-| GET | `/order/order_and_order_details?order_id={id}` | Get order with details |
-| POST | `/order/take_an_order` | Create new order |
-| GET | `/order/get_users_orders_by_id?user_id={id}` | Get user's orders |
-
-### Price Logs (`/price_log`)
+### Offers (`/offers`)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/price_log/search_price_logs?offer_id={id}` | Get price history |
+| GET    | `/offers` | Get offers (filterable by `category_id`, `subcategory_id`, `min_price`, `max_price`, `is_active`) |
+| GET    | `/offers/{offer_id}` | Get offer by ID |
+| GET    | `/offers/{offer_id}/price_logs` | Get price history for an offer |
 
+&nbsp;
+
+### My Offers (`/users/me/offers`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET    | `/users/me/offers` | Get current user's offers 🔒 |
+| POST   | `/users/me/offers` | Create new offer 🔒 |
+| PATCH  | `/users/me/offers/{offer_id}` | Update offer 🔒 |
+| PATCH  | `/users/me/offers/{offer_id}/end-date` | Extend offer end date 🔒 |
+
+&nbsp;
+
+### Favourites (`/users/me/favourites`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET    | `/users/me/favourites` | Get current user's favourite offers 🔒 |
+| POST   | `/users/me/favourites/{offer_id}` | Add offer to favourites 🔒 |
+| DELETE | `/users/me/favourites/{offer_id}` | Remove offer from favourites 🔒 |
+
+&nbsp;
+
+### Orders (`/users/me/orders`)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET    | `/users/me/orders` | Get current user's orders 🔒 |
+| GET    | `/users/me/orders/{order_id}` | Get order by ID 🔒 |
+| GET    | `/users/me/orders/{order_id}/order_details` | Get order details 🔒 |
+| POST   | `/users/me/orders` | Create new order 🔒 |

@@ -35,10 +35,10 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s: %(message)s"
 )
 
-sheduler = BackgroundScheduler()
-sheduler.add_job(
+scheduler = BackgroundScheduler()
+scheduler.add_job(
     deactivate_offers,
     CronTrigger(hour=3, minute=0)
 )
 
-sheduler.start()
+scheduler.start()
