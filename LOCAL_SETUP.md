@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Python 3.11+
-- PostgreSQL 17.5 (recommended)
+- PostgreSQL 17.5+
 - dbmate 2.27+
 
 ## 1. Clone the repository
@@ -52,10 +52,18 @@ dbmate -d . -u <DATABASE_URL>?sslmode=disable up
 
 Optionally — load test data:
 
-*firstly you must insert test users in python:*
+*firstly you must insert test users in python but before you do it you must start uvicron:*
+start uvicorn:
 ```bash
-cd ../../app/test_inserts
-python insert_users.py
+cd ../../app
+uvicorn main:app --reload
+```
+
+insert test users (in new terminal):
+
+```bash
+cd marketplace-api/app/test_inserts
+python insert_users.py  #this may take a while due to password hashing
 ```
 
 Run migrations in test_inserts folder:
@@ -65,7 +73,7 @@ dbmate -d . -u <DATABASE_URL>?sslmode=disable up
 ```
 
 ## 6. Start the server
-
+*If you loaded test data in step 5, the server is already running*
 ```bash
 cd ../../app
 uvicorn main:app --reload
