@@ -68,14 +68,15 @@ Four automated triggers handle business logic:
 ## 📁 Project Structure
 
 ```
-marketplace-api
-├── app
+marketplace-api/
+├── app/
 │   ├── __init__.py
 │   ├── database.py
 │   ├── main.py
 │   ├── models.py
 │   ├── scheduled_deactivate_offers.py
-│   ├── routers
+│   │
+│   ├── routers/
 │   │   ├── __init__.py
 │   │   ├── auth.py
 │   │   ├── category.py
@@ -84,7 +85,8 @@ marketplace-api
 │   │   ├── offer.py
 │   │   ├── order.py
 │   │   └── user.py
-│   ├── schemas
+│   │
+│   ├── schemas/
 │   │   ├── __init__.py
 │   │   ├── auth.py
 │   │   ├── category.py
@@ -93,10 +95,11 @@ marketplace-api
 │   │   ├── order.py
 │   │   ├── price_log.py
 │   │   └── user.py
-│   └── test_inserts
+│   │
+│   └── test_inserts/
 │       └── insert_users.py
 │
-├── database
+├── database/
 │   ├── 1_Create_Users.sql
 │   ├── 2_Create_Categories.sql
 │   ├── 3_Create_Offers.sql
@@ -104,17 +107,20 @@ marketplace-api
 │   ├── 5_Create_Order_Details.sql
 │   ├── 6_Create_Price_Logs.sql
 │   ├── 7_Create_Favourites.sql
-│   ├── test_inserts
+│   ├
+│   ├── test_inserts/
 │   │   ├── 92_Insert_Categories.sql
 │   │   ├── 93_Insert_Offers.sql
 │   │   ├── 94_Insert_Orders.sql
 │   │   ├── 95_Insert_Favourities.sql
 │   │   └── 96_Insert_Order_Details.sql
-│   └── triggers
+│   ├
+│   └── triggers/
 │       ├── 11_Trigger_Order_Details.sql
 │       ├── 12_Trigger_Price_Logs.sql
 │       ├── 13_Trigger_Offers_Quantity.sql
 │       └── 14_Trigger_Favourites.sql
+│
 ├── Readme.md
 ├── requirements.txt
 ├── .env.example
