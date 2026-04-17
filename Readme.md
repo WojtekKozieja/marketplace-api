@@ -17,8 +17,9 @@ A full-featured online marketplace platform built with FastAPI and PostgreSQL, f
 ## 🛠 Tech Stack
 
 - **Backend Framework**: FastAPI 0.135.1
-- **Database**: PostgreSQL with SQLAlchemy 2.0.48
-- **Authentication**: bcrypt 5.0.0, JWT Tokens (python-jose)
+- **Language**: Python 3.11.8
+- **Database**: PostgreSQL 17.5 with SQLAlchemy 2.0.48
+- **Authentication**: bcrypt 5.0.0, JWT Tokens (python-jose 3.5.0)
 - **Task Scheduling**: APScheduler 3.11.2
 - **Server**: Uvicorn 0.42.0
 - **Deployment**: AWS EC2
