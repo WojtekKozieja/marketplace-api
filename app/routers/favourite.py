@@ -12,9 +12,9 @@ from routers.auth import get_current_user
 from models import favourites, Offer, User
 
 
-router = APIRouter(prefix="/users", tags=["Favourites"])
+router = APIRouter(prefix="/users/me/favourites", tags=["Favourites"])
 
-@router.get("/me/favourites")
+@router.get("")
 def get_favourite_offers(
     current_user_id: int = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -33,7 +33,7 @@ def get_favourite_offers(
 
 
 @router.post(
-        "/me/favourites/{offer_id}",
+        "/{offer_id}",
         response_model=FavouriteOfferResponse
 )
 def add_fav_offers(
@@ -69,7 +69,7 @@ def add_fav_offers(
         raise HTTPException(status_code=500, detail="Database error")
 
 
-@router.delete("/me/favourites/{offer_id}")
+@router.delete("/{offer_id}")
 def del_fav_offers(
         offer_id: int,
         current_user_id: int = Depends(get_current_user),

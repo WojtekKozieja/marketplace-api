@@ -10,9 +10,9 @@ from schemas.offer import OfferResponse, AddOffer, OfferUpdate, ExtendOffer
 from routers.auth import get_current_user
 from routers.offer import filter_offers_by_active_status
 
-router = APIRouter(prefix="/users", tags=["My Offers"])
+router = APIRouter(prefix="/users/me/offers", tags=["My Offers"])
 
-@router.get("/me/offers")
+@router.get("")
 def get_users_offers(
     is_active: bool | None = None,
     current_user_id: int = Depends(get_current_user),
@@ -24,7 +24,7 @@ def get_users_offers(
     return paginate(db, offers.order_by(Offer.start_offer_date.desc()))
 
 
-@router.post("/me/offers", response_model=OfferResponse)
+@router.post("", response_model=OfferResponse)
 def create_offer(
     new_offer: AddOffer,
     current_user_id: int = Depends(get_current_user),
