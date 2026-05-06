@@ -1,6 +1,6 @@
 # Marketplace API
 
-🌐 **Live API:** [marketplace-api](http://3.236.245.192:8000/docs)
+🌐 **Live API:** [marketplace-api](https://marketplace-api-wojciech.duckdns.org/docs)
 
 A full-featured online marketplace platform built with FastAPI and PostgreSQL, featuring advanced database partitioning, triggers, and real-time offer management.
 
@@ -205,3 +205,13 @@ marketplace-api/
 | GET    | `/users/me/orders/{order_id}` | Get order by ID 🔒 |
 | GET    | `/users/me/orders/{order_id}/order_details` | Get order details 🔒 |
 | POST   | `/users/me/orders` | Create new order 🔒 |
+
+&nbsp;
+
+## 🚀 Deployment
+
+- **Server**: AWS EC2 (Ubuntu 24.04)
+- **Database**: AWS RDS PostgreSQL
+- **Web Server**: Nginx
+- **Process Manager**: systemd
+- **Scheduled Jobs**: APScheduler (daily offer deactivation at 03:00)
